@@ -51,8 +51,6 @@ def read_image():
         with Image.open(img_path) as picture:
             image = picture.convert("RGBA")
             tk_image = ImageTk.PhotoImage(image)
-            # lbl_image.config(image=tk_image)
-            # lbl_image.image = tk_image
             cnv_image.config(width=image.size[0], height=image.size[1])
 
             canvas_image = cnv_image.create_image(0, 0, anchor="nw", image=tk_image)
@@ -72,12 +70,12 @@ def read_image():
 
             text_x_pos = text_center[0] - text_width / 2
             text_y_pos = text_center[1] - text_height / 2
-            # from_height = 0 - image_size[1]/2 - text_height /2
+
             from_height = 0 - image_size[1] / 2 - text_height / 2
             to_height = image_size[1] / 2 + text_height / 2
             scl_set_Y.config(from_=from_height, to=to_height)
             scl_set_Y.set(0)
-            # scl_set_Y.config(from_=from_height, to=image_size[1]/2)
+
             from_width = 0 - image_size[0] / 2 - text_width / 2
             to_width = image_size[0] / 2 + text_width / 2
             scl_set_X.config(from_=from_width, to=to_width)
@@ -85,7 +83,7 @@ def read_image():
 
             scl_opacity.set(text_opacity)
 
-            # display_image()
+            display_image()
 
 
 def enable_buttons():
@@ -110,16 +108,14 @@ def set_watermark_font_size(*args):
     text_width, text_height = ImageDraw.Draw(image).textsize(mark_text, text_font)
     text_x_pos = text_center[0] - text_width / 2
     text_y_pos = text_center[1] - text_height / 2
-    # fr = 0 - text_height
+
     from_height = 0 - image_size[1] / 2 - text_height / 2
     to_height = image_size[1] / 2 + text_height / 2
     scl_set_Y.config(from_=from_height, to=to_height)
-    # scl_set_Y.set(text_center[1] - text_height / 2)
 
     from_width = 0 - image_size[0] / 2 - text_width / 2
     to_width = image_size[0] / 2 + text_width / 2
     scl_set_X.config(from_=from_width, to=to_width)
-    # scl_set_X.set(text_center[0] - text_width / 2)
     scl_opacity.set(text_opacity)
 
     display_image()
@@ -130,7 +126,7 @@ def set_watermark_x_pos(*args):
 
     text_x_pos = int(args[0]) + image_size[0] / 2 - text_width / 2
     text_center = (text_x_pos + text_width / 2, text_y_pos + text_height / 2)
-    print(text_center)
+
     display_image()
 
 
@@ -139,25 +135,31 @@ def set_watermark_y_pos(*args):
 
     text_y_pos = int(args[0]) + image_size[1] / 2 - text_height / 2
     text_center = (text_x_pos + text_width / 2, text_y_pos + text_height / 2)
-    print(text_center)
+
     display_image()
 
 
 def set_watermark_text_color():
     global text_color
+
     text_color = colorchooser.askcolor()[0]
+
     display_image()
 
 
 def set_watermark_opacity(*args):
     global text_opacity
+
     text_opacity = int(args[0])
+
     display_image()
 
 
 def set_watermark_text(*args):
     global mark_text
+
     mark_text = ent_set_text.get()
+
     display_image()
 
 
@@ -180,8 +182,6 @@ def display_image():
     cnv_image.itemconfig(canvas_image, image=out)
     cnv_image.image = out
 
-    # out.show()
-
 
 # set window
 window = tk.Tk()
@@ -197,6 +197,7 @@ frm_image.grid(row=0, column=0, sticky="nsew", )
 # place for image
 cnv_image = tk.Canvas(master=frm_image, relief=tk.SUNKEN, scrollregion=(0, 0, 500, 500))
 
+# image scrollbars
 y_scrollbar = tk.Scrollbar(master=frm_image, orient="vertical", )
 y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
@@ -248,5 +249,7 @@ scl_set_Y.grid(row=6, column=0, sticky="ew", padx=2, pady=2, )
 scl_opacity = tk.Scale(master=frm_options, from_=0, to=255, label="Opacity",
                        orient="horizontal", command=set_watermark_opacity, state=tk.DISABLED, )
 scl_opacity.grid(row=7, column=0, sticky="ew", padx=2, pady=2, )
+
+
 
 window.mainloop()
