@@ -54,8 +54,18 @@ def read_image():
             # lbl_image.config(image=tk_image)
             # lbl_image.image = tk_image
             cnv_image.config(width=image.size[0], height=image.size[1])
+
             canvas_image = cnv_image.create_image(0, 0, anchor="nw", image=tk_image)
             image_size = image.size
+
+            cnv_image.config(scrollregion=(0, 0, image_size[0], image_size[1]))
+            y_scrollbar.config(command=cnv_image.yview)
+            x_scrollbar.config(command=cnv_image.xview)
+            cnv_image.config(
+                xscrollcommand=x_scrollbar.set,
+                yscrollcommand=y_scrollbar.set
+            )
+
             enable_buttons()
             text_width, text_height = ImageDraw.Draw(image).textsize(mark_text, text_font)
             text_center = (image_size[0] / 2, image_size[1] / 2)
@@ -75,7 +85,7 @@ def read_image():
 
             scl_opacity.set(text_opacity)
 
-            display_image()
+            # display_image()
 
 
 def enable_buttons():
@@ -154,7 +164,7 @@ def set_watermark_text(*args):
 def display_image():
     global image
     # make a blank image for the text, initialized to transparent text color
-    txt = Image.new("RGBA", image.size, (255, 255, 255, 0))
+    txt = Image.new("RGBA", image_size, (255, 255, 255, 0))
 
     d = ImageDraw.Draw(txt)
     r, g, b = text_color
@@ -181,13 +191,19 @@ window.columnconfigure(1, minsize=100, weight=1)
 window.rowconfigure(0, minsize=500, weight=1)
 
 # image frame
-frm_image = tk.Frame(master=window)
+frm_image = tk.Frame(master=window, bg='#4A7A8C')
 frm_image.grid(row=0, column=0, sticky="nsew", )
 
 # place for image
-cnv_image = tk.Canvas(master=frm_image, relief=tk.SUNKEN, )
-cnv_image.pack()
+cnv_image = tk.Canvas(master=frm_image, relief=tk.SUNKEN, scrollregion=(0, 0, 500, 500))
 
+y_scrollbar = tk.Scrollbar(master=frm_image, orient="vertical", )
+y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+x_scrollbar = tk.Scrollbar(master=frm_image, orient="horizontal", )
+x_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
+
+cnv_image.pack(expand=True, side=tk.LEFT, fill=tk.BOTH)
 # options frame
 frm_options = tk.Frame(master=window, borderwidth=3)
 frm_options.grid(row=0, column=1, sticky="N", padx=3, pady=3)
