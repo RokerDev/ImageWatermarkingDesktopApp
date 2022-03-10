@@ -5,6 +5,7 @@ from PIL import Image, ImageTk, ImageFont, ImageDraw
 from matplotlib import font_manager
 
 image = None
+ready_image = None
 canvas_image = None
 # default size of an image
 image_size = (1000, 1000)
@@ -86,6 +87,12 @@ def read_image():
             display_image()
 
 
+def save_image():
+    save_path = filedialog.asksaveasfilename(defaultextension=".png")
+    if save_path:
+        ready_image.save(save_path)
+
+
 def enable_buttons():
     ent_set_text.config(state=tk.NORMAL)
     btn_change_color.config(state=tk.NORMAL)
@@ -93,12 +100,7 @@ def enable_buttons():
     scl_set_X.config(state=tk.NORMAL)
     scl_set_Y.config(state=tk.NORMAL)
     scl_opacity.config(state=tk.NORMAL)
-
-
-# def convert_image_to_png(picture_obj, path):
-#     if not path.endswith(".png"):
-#         path, extension = path.split(".")
-#         picture_obj.save(f"{path}.png")
+    btn_save_image.config(state=tk.NORMAL)
 
 
 def set_watermark_font_size(*args):
@@ -164,7 +166,7 @@ def set_watermark_text(*args):
 
 
 def display_image():
-    global image
+    global ready_image
     # make a blank image for the text, initialized to transparent text color
     txt = Image.new("RGBA", image_size, (255, 255, 255, 0))
 
@@ -177,8 +179,8 @@ def display_image():
     d.text((text_x_pos, text_y_pos), mark_text,
            font=text_font, fill=(r, g, b, text_opacity))
 
-    out = Image.alpha_composite(image, txt)
-    out = ImageTk.PhotoImage(out)
+    ready_image = Image.alpha_composite(image, txt)
+    out = ImageTk.PhotoImage(ready_image)
     cnv_image.itemconfig(canvas_image, image=out)
     cnv_image.image = out
 
@@ -186,25 +188,27 @@ def display_image():
 # set window
 window = tk.Tk()
 window.title("Image Watermarking Desktop Application")
-window.columnconfigure(0, minsize=500, weight=50)
+window.columnconfigure(0, minsize=50, weight=50)
 window.columnconfigure(1, minsize=100, weight=1)
-window.rowconfigure(0, minsize=500, weight=1)
+window.rowconfigure(0, minsize=50, weight=1)
 
 # image frame
 frm_image = tk.Frame(master=window, bg='#4A7A8C')
 frm_image.grid(row=0, column=0, sticky="nsew", )
 
 # place for image
-cnv_image = tk.Canvas(master=frm_image, relief=tk.SUNKEN, scrollregion=(0, 0, 500, 500))
+cnv_image = tk.Canvas(master=frm_image, relief=tk.SUNKEN,
+                      borderwidth=4, scrollregion=(0, 0, 500, 500), )
 
 # image scrollbars
-y_scrollbar = tk.Scrollbar(master=frm_image, orient="vertical", )
-y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-
 x_scrollbar = tk.Scrollbar(master=frm_image, orient="horizontal", )
 x_scrollbar.pack(side=tk.BOTTOM, fill=tk.X)
 
+y_scrollbar = tk.Scrollbar(master=frm_image, orient="vertical", )
+y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
 cnv_image.pack(expand=True, side=tk.LEFT, fill=tk.BOTH)
+
 # options frame
 frm_options = tk.Frame(master=window, borderwidth=3)
 frm_options.grid(row=0, column=1, sticky="N", padx=3, pady=3)
@@ -250,6 +254,9 @@ scl_opacity = tk.Scale(master=frm_options, from_=0, to=255, label="Opacity",
                        orient="horizontal", command=set_watermark_opacity, state=tk.DISABLED, )
 scl_opacity.grid(row=7, column=0, sticky="ew", padx=2, pady=2, )
 
-
+# save watermarked image to file
+btn_save_image = tk.Button(master=frm_options, text="Save Image",
+                           state=tk.DISABLED, command=save_image)
+btn_save_image.grid(row=8, column=0, sticky="ew", padx=2, pady=2, )
 
 window.mainloop()
