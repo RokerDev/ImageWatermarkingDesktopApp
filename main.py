@@ -1,3 +1,4 @@
+import random
 import tkinter as tk
 from tkinter import filedialog, colorchooser
 
@@ -52,7 +53,7 @@ def read_image():
         with Image.open(img_path) as picture:
             image = picture.convert("RGBA")
             tk_image = ImageTk.PhotoImage(image)
-            cnv_image.config(width=image.size[0], height=image.size[1])
+            cnv_image.config(width=image.size[0], height=image.size[1], )
 
             canvas_image = cnv_image.create_image(0, 0, anchor="nw", image=tk_image)
             image_size = image.size
@@ -101,12 +102,11 @@ def enable_buttons():
     scl_set_Y.config(state=tk.NORMAL)
     scl_opacity.config(state=tk.NORMAL)
     btn_save_image.config(state=tk.NORMAL)
+    btn_change_font.config(state=tk.NORMAL)
 
 
-def set_watermark_font_size(*args):
-    global font_size, text_font, text_width, text_height, text_x_pos, text_y_pos
-    font_size = int(args[0])
-    text_font = ImageFont.truetype(sys_text_font, font_size)
+def set_text_position():
+    global text_width, text_height, text_x_pos, text_y_pos
     text_width, text_height = ImageDraw.Draw(image).textsize(mark_text, text_font)
     text_x_pos = text_center[0] - text_width / 2
     text_y_pos = text_center[1] - text_height / 2
@@ -118,7 +118,26 @@ def set_watermark_font_size(*args):
     from_width = 0 - image_size[0] / 2 - text_width / 2
     to_width = image_size[0] / 2 + text_width / 2
     scl_set_X.config(from_=from_width, to=to_width)
+
     scl_opacity.set(text_opacity)
+
+
+def set_watermark_font_size(*args):
+    global font_size, text_font
+    font_size = int(args[0])
+    text_font = ImageFont.truetype(sys_text_font, font_size)
+
+    set_text_position()
+
+    display_image()
+
+
+def set_watermark_font():
+    global sys_text_font, text_font
+    sys_text_font = random.choice(system_fonts)
+    text_font = ImageFont.truetype(sys_text_font, font_size)
+
+    set_text_position()
 
     display_image()
 
@@ -233,30 +252,35 @@ btn_change_color = tk.Button(frm_options, text="Change Color",
                              state=tk.DISABLED, )
 btn_change_color.grid(row=3, column=0, sticky="ew", padx=2, pady=2, )
 
+btn_change_font = tk.Button(frm_options, text="Change Font",
+                            command=set_watermark_font,
+                            state=tk.DISABLED, )
+btn_change_font.grid(row=4, column=0, sticky="ew", padx=2, pady=2, )
+
 # change size of watermark text
 scl_size = tk.Scale(master=frm_options, from_=10, to=max_text_size,
                     orient="horizontal", label="Size",
                     command=set_watermark_font_size, state=tk.DISABLED, )
-scl_size.grid(row=4, column=0, sticky="ew", padx=2, pady=2, )
+scl_size.grid(row=5, column=0, sticky="ew", padx=2, pady=2, )
 
 # set top left corner watermark text position
 scl_set_X = tk.Scale(master=frm_options, from_=0, to=1000, orient="horizontal",
                      label="X pos", command=set_watermark_x_pos, state=tk.DISABLED, )
-scl_set_X.grid(row=5, column=0, sticky="ew", padx=2, pady=2, )
+scl_set_X.grid(row=6, column=0, sticky="ew", padx=2, pady=2, )
 
 # set top left corner watermark text position
 scl_set_Y = tk.Scale(master=frm_options, from_=0, to=1000, orient="horizontal",
                      label="Y pos", command=set_watermark_y_pos, state=tk.DISABLED, )
-scl_set_Y.grid(row=6, column=0, sticky="ew", padx=2, pady=2, )
+scl_set_Y.grid(row=7, column=0, sticky="ew", padx=2, pady=2, )
 
 # set opacity of watermark text
 scl_opacity = tk.Scale(master=frm_options, from_=0, to=255, label="Opacity",
                        orient="horizontal", command=set_watermark_opacity, state=tk.DISABLED, )
-scl_opacity.grid(row=7, column=0, sticky="ew", padx=2, pady=2, )
+scl_opacity.grid(row=8, column=0, sticky="ew", padx=2, pady=2, )
 
 # save watermarked image to file
 btn_save_image = tk.Button(master=frm_options, text="Save Image",
                            state=tk.DISABLED, command=save_image)
-btn_save_image.grid(row=8, column=0, sticky="ew", padx=2, pady=2, )
+btn_save_image.grid(row=9, column=0, sticky="ew", padx=2, pady=2, )
 
 window.mainloop()
