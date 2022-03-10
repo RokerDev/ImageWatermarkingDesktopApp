@@ -67,20 +67,12 @@ def read_image():
             )
 
             enable_buttons()
-            text_width, text_height = ImageDraw.Draw(image).textsize(mark_text, text_font)
+
             text_center = (image_size[0] / 2, image_size[1] / 2)
 
-            text_x_pos = text_center[0] - text_width / 2
-            text_y_pos = text_center[1] - text_height / 2
+            set_text_position()
 
-            from_height = 0 - image_size[1] / 2 - text_height / 2
-            to_height = image_size[1] / 2 + text_height / 2
-            scl_set_Y.config(from_=from_height, to=to_height)
             scl_set_Y.set(0)
-
-            from_width = 0 - image_size[0] / 2 - text_width / 2
-            to_width = image_size[0] / 2 + text_width / 2
-            scl_set_X.config(from_=from_width, to=to_width)
             scl_set_X.set(0)
 
             scl_opacity.set(text_opacity)
