@@ -1,17 +1,17 @@
 import random
 import tkinter as tk
 from tkinter import filedialog, colorchooser
-
 from PIL import Image, ImageTk, ImageFont, ImageDraw
 from matplotlib import font_manager
 
 image = None
+
 ready_image = None
+
 canvas_image = None
+
 # default size of an image
 image_size = (1000, 1000)
-
-watermark_text_dict = {}
 
 # find all fonts installed in your computer
 system_fonts = font_manager.findSystemFonts(fontpaths=None, fontext='ttf')
@@ -46,47 +46,59 @@ text_center = []
 
 
 def read_image():
-    global image, image_size, text_center, text_y_pos, text_x_pos, text_width, text_height, canvas_image
+    global image, image_size, text_center, canvas_image
 
     img_path = filedialog.askopenfilename()
     if img_path != "":
         with Image.open(img_path) as picture:
+            # Convert image for RGBA format needed to Image.alpha_composite function
             image = picture.convert("RGBA")
-            tk_image = ImageTk.PhotoImage(image)
-            cnv_image.config(width=image.size[0], height=image.size[1], )
-
-            canvas_image = cnv_image.create_image(0, 0, anchor="nw", image=tk_image)
             image_size = image.size
 
+            # Create PhotoImage object from Image used by Canvas Widget
+            tk_image = ImageTk.PhotoImage(image)
+
+            # Set Canvas Size
+            cnv_image.config(width=image_size[0], height=image_size[1], )
+
+            # Display image on Canvas
+            canvas_image = cnv_image.create_image(0, 0, anchor="nw", image=tk_image)
+
+            # Set scrollbars
             cnv_image.config(scrollregion=(0, 0, image_size[0], image_size[1]))
+
             y_scrollbar.config(command=cnv_image.yview)
             x_scrollbar.config(command=cnv_image.xview)
-            cnv_image.config(
-                xscrollcommand=x_scrollbar.set,
-                yscrollcommand=y_scrollbar.set
-            )
 
-            enable_buttons()
+            cnv_image.config(xscrollcommand=x_scrollbar.set,
+                             yscrollcommand=y_scrollbar.set)
 
+            # Set center of watermark text
             text_center = (image_size[0] / 2, image_size[1] / 2)
 
+            # Turn on other options
+            enable_options()
+
+            # Set watermark text position
             set_text_position()
 
+            # Set scales default values
+            scl_size.set(50)
             scl_set_Y.set(0)
             scl_set_X.set(0)
+            scl_opacity.set(255)
 
-            scl_opacity.set(text_opacity)
-
+            # Display Everything at once
             display_image()
 
 
 def save_image():
     save_path = filedialog.asksaveasfilename(defaultextension=".png")
-    if save_path:
+    if save_path and ready_image:
         ready_image.save(save_path)
 
 
-def enable_buttons():
+def enable_options():
     ent_set_text.config(state=tk.NORMAL)
     btn_change_color.config(state=tk.NORMAL)
     scl_size.config(state=tk.NORMAL)
@@ -99,6 +111,7 @@ def enable_buttons():
 
 def set_text_position():
     global text_width, text_height, text_x_pos, text_y_pos
+
     text_width, text_height = ImageDraw.Draw(image).textsize(mark_text, text_font)
     text_x_pos = text_center[0] - text_width / 2
     text_y_pos = text_center[1] - text_height / 2
@@ -111,11 +124,10 @@ def set_text_position():
     to_width = image_size[0] / 2 + text_width / 2
     scl_set_X.config(from_=from_width, to=to_width)
 
-    scl_opacity.set(text_opacity)
-
 
 def set_watermark_font_size(*args):
     global font_size, text_font
+
     font_size = int(args[0])
     text_font = ImageFont.truetype(sys_text_font, font_size)
 
@@ -126,6 +138,7 @@ def set_watermark_font_size(*args):
 
 def set_watermark_font():
     global sys_text_font, text_font
+
     sys_text_font = random.choice(system_fonts)
     text_font = ImageFont.truetype(sys_text_font, font_size)
 
@@ -178,20 +191,30 @@ def set_watermark_text(*args):
 
 def display_image():
     global ready_image
+
     # make a blank image for the text, initialized to transparent text color
     txt = Image.new("RGBA", image_size, (255, 255, 255, 0))
 
+    # creates object to draw given Image object
     d = ImageDraw.Draw(txt)
+
+    # Set text color
     r, g, b = text_color
     r = int(r)
     g = int(g)
     b = int(b)
 
+    # Draw string at the given position
     d.text((text_x_pos, text_y_pos), mark_text,
            font=text_font, fill=(r, g, b, text_opacity))
 
+    # Make transparent composition image - background, txt - watermark
     ready_image = Image.alpha_composite(image, txt)
+
+    # Convert to PhotoImage Object used by Canvas
     out = ImageTk.PhotoImage(ready_image)
+
+    # Change Canvas Image
     cnv_image.itemconfig(canvas_image, image=out)
     cnv_image.image = out
 
@@ -251,13 +274,13 @@ btn_change_font.grid(row=4, column=0, sticky="ew", padx=2, pady=2, )
 
 # change size of watermark text
 scl_size = tk.Scale(master=frm_options, from_=10, to=max_text_size,
-                    orient="horizontal", label="Size",
+                    orient="horizontal", label=" Font Size:",
                     command=set_watermark_font_size, state=tk.DISABLED, )
 scl_size.grid(row=5, column=0, sticky="ew", padx=2, pady=2, )
 
 # set top left corner watermark text position
 scl_set_X = tk.Scale(master=frm_options, from_=0, to=1000, orient="horizontal",
-                     label="X pos", command=set_watermark_x_pos, state=tk.DISABLED, )
+                     label=" X Position:", command=set_watermark_x_pos, state=tk.DISABLED, )
 scl_set_X.grid(row=6, column=0, sticky="ew", padx=2, pady=2, )
 
 # set top left corner watermark text position
@@ -266,7 +289,7 @@ scl_set_Y = tk.Scale(master=frm_options, from_=0, to=1000, orient="horizontal",
 scl_set_Y.grid(row=7, column=0, sticky="ew", padx=2, pady=2, )
 
 # set opacity of watermark text
-scl_opacity = tk.Scale(master=frm_options, from_=0, to=255, label="Opacity",
+scl_opacity = tk.Scale(master=frm_options, from_=0, to=255, label=" Opacity",
                        orient="horizontal", command=set_watermark_opacity, state=tk.DISABLED, )
 scl_opacity.grid(row=8, column=0, sticky="ew", padx=2, pady=2, )
 
