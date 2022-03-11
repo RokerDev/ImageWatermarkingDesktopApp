@@ -87,9 +87,17 @@ def read_image():
             scl_set_Y.set(0)
             scl_set_X.set(0)
             scl_opacity.set(255)
-
+            huge_image_change_window_size()
             # Display Everything at once
             display_image()
+
+
+def huge_image_change_window_size():
+    wider = image_size[0] > window.winfo_screenwidth()
+    higher = image_size[1] > window.winfo_screenheight()
+
+    if wider or higher:
+        window.state("zoomed")
 
 
 def save_image():
