@@ -87,7 +87,10 @@ def read_image():
             scl_set_Y.set(0)
             scl_set_X.set(0)
             scl_opacity.set(255)
+
+            # Change window state depending on image size
             huge_image_change_window_size()
+
             # Display Everything at once
             display_image()
 
@@ -98,6 +101,8 @@ def huge_image_change_window_size():
 
     if wider or higher:
         window.state("zoomed")
+    else:
+        window.state("normal")
 
 
 def save_image():
@@ -229,6 +234,11 @@ def display_image():
     cnv_image.image = out
 
 
+# Scrolling canvas with the mouse
+def scroll_canvas_img(event):
+    cnv_image.yview_scroll(int(-1*(event.delta/120)), "units")
+
+
 # set window
 window = tk.Tk()
 window.title("Image Watermarking Desktop Application")
@@ -252,6 +262,7 @@ y_scrollbar = tk.Scrollbar(master=frm_image, orient="vertical", )
 y_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
 cnv_image.pack(expand=True, side=tk.LEFT, fill=tk.BOTH)
+cnv_image.bind("<MouseWheel>", scroll_canvas_img)
 
 # options frame
 frm_options = tk.Frame(master=window, borderwidth=3)
