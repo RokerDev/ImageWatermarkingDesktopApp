@@ -186,6 +186,8 @@ def set_watermark_text(*args):
 
     mark_text = ent_set_text.get()
 
+    set_text_position()
+
     display_image()
 
 
